@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  mariadb:
+    container_name: "mariadb"
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=testpass123
+    restart: always
+
+  nginx:
+    container_name: "nginx"
+    image: nginx:1.21.3
+    ports:
+      - "80:80"
+  #  volumes:
+  #     - ./html:/usr/share/nginx/html
+    restart: always
