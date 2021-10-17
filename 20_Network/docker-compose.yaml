@@ -1,0 +1,19 @@
+version: '3.8'
+networks:
+  mynetworks:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.200.0/24
+        gateway: 192.168.200.1
+
+services:
+  nginx:
+    container_name: "nginx"
+    image: nginx:1.21.3
+    ports:
+      - "80:80"
+    networks:
+      mynetworks:
+       ipv4_address: 192.168.200.100
