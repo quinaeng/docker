@@ -1,0 +1,89 @@
+version: '3.8'
+networks:
+  mynetworks:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 192.168.200.0/24
+        gateway: 192.168.200.1
+
+services:
+  nginx:
+    container_name: "nginx"
+    image: nginx:latest
+    hostname: webserver
+    dns: 
+      - 8.8.8.8
+      - 9.9.9.9
+    extra_hosts:                             # コンテナの/etc/hostsファイルに追加設定
+      - webserver.com:192.168.200.100
+    volumes:
+      - type: bind                           # bindはホストのディレクトリが一方的に上書きされる
+        source: "./config/nginx/html"        # ホスト側にディレクトリがない場合、エラーが出る
+        target: "/usr/share/nginx/html"
+      - type: volume                         # dockerリソースを利用する。(docker volume create)
+        source: vol
+        target: /home
+    ports:
+      - 80:80
+    networks:
+      mynetworks:
+       ipv4_address: 192.168.200.100
+    restart: always
+
+  centos8:
+    container_name: "centos8"
+    image: centos:8
+    command: tail -f /dev/null               # コンテナはプロセスが動いていないとdownするため回避対応
+    hostname: centos8
+    dns: 8.8.8.8
+    volumes:
+      - ./config/centos8/etc:/etc            # ホスト側にディレクトリがない場合、コンテナからコピーされる
+    extra_hosts:
+      - centos8.com:192.168.200.101
+    networks:
+      mynetworks:
+       ipv4_address: 192.168.200.101
+    healthcheck:
+      test: ["ping -c5 192.168.200.101", "false"]
+      interval: "30s"
+      timeout: "30s"
+      retries: 3
+      start_period: "0s" 
+    restart: always
+
+  mariadb:
+    container_name: "mariadb"
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=testpass123      # DBのrootユーザのパスワード設定が必須
+    extra_hosts:
+      - mariadb.com:192.168.200.102
+    networks:
+      mynetworks:
+        ipv4_address: 192.168.200.102
+    restart: always
+
+
+volumes:
+  vol:
+
+
+
+
+#ファイルコピー
+#ネットワーク設定
+#ヘルスチェック
+#depends_on:,condition:,command,
+
+
+# ネットワークについて
+# docker-compose.yamlにコンテナのネットワーク設定を行わない場合、
+# デフォルトのネットワークに所属される。
+# デフォルトのネットワークに所属するとDNSサーバの設定は、ホストの設定を引き継ぐ。
+# mynetworksでgatewayの設定を行わない場合、subnetの一番最小値(192.168.200.1)がgatewayとなる。
+# volumeについて
+#
