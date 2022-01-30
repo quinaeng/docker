@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  namespace:
+    container_name: namespace
+    image: debian
+    command: tail -f /dev/null
+    networks:
+      default:
+        ipv4_address: 192.168.10.200
+  
+  centos:
+    container_name: centos
+    image: centos:latest
+    command: tail -f /dev/null
+    network_mode: "service:namespace"
+
+networks:
+  default:
+    name: docker_bridge
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: docker_bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.10.0/24
