@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+    zabbix-agent:
+        container_name: zabbix-agent
+        image: zabbix/zabbix-agent
+        environment:
+            - ZBX_HOSTNAME=server1
+            - ZBX_SERVER_HOST=zabbix-proxy
+        ports:
+          - "10050:10050/tcp"
+
+
