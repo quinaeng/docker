@@ -8,7 +8,7 @@
 
 - dockerのインストール
 
-`dnf -y install --nobest -allowerasing docker-ce docker-ce-cli`
+`dnf -y install --nobest --allowerasing docker-ce docker-ce-cli`
 
 ## docker composeのインストール
 
